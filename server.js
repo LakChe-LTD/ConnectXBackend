@@ -88,7 +88,7 @@ app.use('/api/user/2fa', twoFaRoutes);
 app.use('/api/wallet', walletRoutes);
 
 // Catch-all 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
 
