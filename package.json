@@ -21,6 +21,7 @@
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.9",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0",
