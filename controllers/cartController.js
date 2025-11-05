@@ -50,7 +50,6 @@ exports.addToCart = async (req, res) => {
 };
 
 
-// Get cart items
 exports.getCart = async (req, res) => {
   try {
     const userId = req.userId;
@@ -72,3 +71,31 @@ exports.getCart = async (req, res) => {
   }
 };
 
+exports.removeFromCart = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const cartItemId = req.params.id;
+
+    const cartItem = await Cart.findOne({ _id: cartItemId, userId });
+
+    if (!cartItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart item not found",
+      });
+    }
+
+    await cartItem.remove();
+
+    res.status(200).json({
+      success: true,
+      message: "Item removed from cart successfully",
+    });
+  } catch (error) {
+    console.error('Error removing cart item:', error);
+    res.status(500).json({
+      success: false,
+      message: "Error removing item from cart",
+    });
+  }
+};
