@@ -48,3 +48,27 @@ exports.addToCart = async (req, res) => {
     });
   }
 };
+
+
+// Get cart items
+exports.getCart = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const cartItems = await Cart.find({ userId })
+      .populate('productId', 'name price imageUrl') 
+      .exec();
+
+    res.status(200).json({
+      success: true,
+      data: cartItems,
+    });
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching cart data",
+    });
+  }
+};
+
