@@ -1,4 +1,7 @@
 const Cart = require('../models/Cart');
+
+const mongoose = require('mongoose');
+
 const Product = require('../models/Product');
 
 exports.addToCart = async (req, res) => {
@@ -71,31 +74,29 @@ exports.getCart = async (req, res) => {
   }
 };
 
+
+
+// DELETE /api/cart/remove/:id
 exports.removeFromCart = async (req, res) => {
   try {
-    const userId = req.userId;
-    const cartItemId = req.params.id;
+    const { id } = req.params;
 
-    const cartItem = await Cart.findOne({ _id: cartItemId, userId });
-
-    if (!cartItem) {
-      return res.status(404).json({
-        success: false,
-        message: "Cart item not found",
-      });
+    // Check if the id is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid cart item ID" });
     }
 
-    await cartItem.remove();
+    // Find cart item by id and delete
+    const cartItem = await Cart.findByIdAndDelete(id);
 
-    res.status(200).json({
-      success: true,
-      message: "Item removed from cart successfully",
-    });
+    if (!cartItem) {
+      return res.status(404).json({ success: false, message: "Cart item not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Item removed from cart" });
   } catch (error) {
-    console.error('Error removing cart item:', error);
-    res.status(500).json({
-      success: false,
-      message: "Error removing item from cart",
-    });
+    console.error("Error deleting cart item:", error);  // Log the actual error
+    res.status(500).json({ success: false, message: "Error removing item from cart", error: error.message });
   }
 };
+

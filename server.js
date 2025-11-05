@@ -15,6 +15,7 @@ const userRoutes = require('./routes/userRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const hotspotRoutes = require('./routes/hotspotRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const checkoutRoutes = require('./routes/checkoutRoutes');
 
 
 
@@ -49,6 +50,8 @@ app.use('/api/wallet', walletRoutes);
 
 // ... other routes
 app.use('/api/cart', cartRoutes);
+app.use('/api/checkout', checkoutRoutes);
+app.use('/api/orders', checkoutRoutes);
 
 
 // Catch-all 404 handler
