@@ -3,10 +3,11 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const connectDB = require('./config/database');
+const passport = require('passport');
+const authSocialRoutes = require('./routes/authSocial');
 
 // Route imports
-const authRoutes = require('./routes/authRoutes');  
-const auth2faRoutes = require('./routes/auth2fa');  
+const authRoutes = require('./routes/authRoutes');   
 const twoFaRoutes = require('./routes/2fa');
 const walletRoutes = require('./routes/walletRoutes');
 const referralRoutes = require('./routes/referralRoutes');
@@ -16,6 +17,7 @@ const sessionRoutes = require('./routes/sessionRoutes');
 const hotspotRoutes = require('./routes/hotspotRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
+// const adminRoutes = require('./routes/admin');
 
 
 
@@ -31,17 +33,18 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(passport.initialize());
 // Root route (health check)
 app.get('/', (req, res) => {
   res.send('ConnectX Backend API is running!');
 });
 
+app.use('/api/auth', authSocialRoutes);
+
 // API routes
 app.use('/api/store', storeRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/auth/2fa', auth2faRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/user/sessions', sessionRoutes);
 app.use('/api/hotspots', hotspotRoutes);
@@ -52,6 +55,12 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/orders', checkoutRoutes);
+
+
+// Admin routes
+// app.use('/api/admin', adminRoutes);
+app.use('/api/admin', require('./routes/adminAnalytics'));
+
 
 
 // Catch-all 404 handler

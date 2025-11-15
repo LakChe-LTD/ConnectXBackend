@@ -6,44 +6,67 @@ const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, adminKey } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password required' });
+    // 1️⃣ Validate required fields
+    if (!email || !password || !firstName || !lastName) {
+      return res.status(400).json({ error: 'First name, last name, email and password are required' });
     }
 
+    // 2️⃣ Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ error: 'Email already registered' });
     }
 
+    // 3️⃣ Hash the password
     const hashedPassword = await hashPassword(password);
 
+    // 4️⃣ Decide role
+    let role = 'user';
+    console.log('ADMIN_SECRET_KEY (env):', process.env.ADMIN_SECRET_KEY);
+    console.log('adminKey (from body):', adminKey);
+
+    if (adminKey && adminKey === process.env.ADMIN_SECRET_KEY) {
+      role = 'admin';
+    }
+
+    // 5️⃣ Create user
     const user = new User({
       firstName,
       lastName,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      role
     });
 
     await user.save();
 
+    console.log('Registered role:', user.role);
+
+    // 6️⃣ Generate JWT
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '15m' }
     );
 
+    // 7️⃣ Respond with role info
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: `User registered successfully as ${user.role}`,
       userId: user._id,
-      token
+      token,
+      role: user.role
     });
+
   } catch (error) {
+    console.error('Register error:', error);
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 const login = async (req, res) => {
   try {
